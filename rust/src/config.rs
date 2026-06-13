@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::Deserialize;
 use std::path::Path;
 
@@ -84,9 +85,29 @@ fn default_pgsql_port() -> u16 {
 
 impl Config {
     pub fn from_file<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
-        let content = std::fs::read_to_string(path)?;
-        let config: Config = serde_json::from_str(&content)?;
-        config.validate()?;
+        let path = path.as_ref();
+        if !path.exists() {
+            anyhow::bail!(
+                "Configuration file '{}' not found.\n       Please create it based on the example: config.example.json",
+                path.display()
+            );
+        }
+        let content = std::fs::read_to_string(path).with_context(|| {
+            format!("Failed to read configuration file '{}'", path.display())
+        })?;
+        let config: Config =
+            serde_json::from_str(&content).with_context(|| {
+                format!(
+                    "Failed to parse configuration file '{}'.\n       Please check the JSON format.",
+                    path.display()
+                )
+            })?;
+        config.validate().with_context(|| {
+            format!(
+                "Configuration file '{}' validation failed",
+                path.display()
+            )
+        })?;
         Ok(config)
     }
 
