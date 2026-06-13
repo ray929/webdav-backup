@@ -1,0 +1,23 @@
+# Rust
+rust/target/
+rust/Cargo.lock
+
+# IDE
+.trae
+.vscode
+.codebuddy
+.idea
+
+# Temp files
+.temp/
+.test/
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+*.pem
+*.key
