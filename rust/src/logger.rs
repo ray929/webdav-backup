@@ -40,7 +40,7 @@ pub fn init(log_level: Option<&str>, background: bool) -> Result<()> {
         EnvFilter::new(level)
     } else {
         EnvFilter::from_default_env()
-            .add_directive("webdav_backup=info".parse().unwrap())
+            .add_directive("webdav-backup=info".parse().unwrap())
     };
 
     let layer = fmt::layer()
@@ -51,7 +51,7 @@ pub fn init(log_level: Option<&str>, background: bool) -> Result<()> {
         .compact();
 
     if background {
-        let writer = FileWriter::new("webdav_backup.log")?;
+        let writer = FileWriter::new("webdav-backup.log")?;
         tracing_subscriber::registry()
             .with(filter)
             .with(layer.with_writer(writer))

@@ -1,5 +1,5 @@
 [package]
-name = "webdav_backup"
+name = "webdav-backup"
 version = "1.0.0"
 edition = "2021"
 

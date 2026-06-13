@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
     let config = Config::from_file(&cli.config)?;
     logger::init(config.global.log_level.as_deref(), cli.background)?;
 
-    info!("webdav_backup started");
+    info!("webdav-backup started");
 
     let mut errors = Vec::new();
 

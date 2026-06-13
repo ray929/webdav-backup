@@ -70,7 +70,7 @@ Or specify a custom configuration file:
 cargo run -- --config /path/to/config.json
 ```
 
-Run in background mode (logs written to `webdav_backup.log`):
+Run in background mode (logs written to `webdav-backup.log`):
 
 ```bash
 cargo run -- --background
