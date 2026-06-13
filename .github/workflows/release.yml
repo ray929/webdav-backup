@@ -18,14 +18,19 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          target: x86_64-unknown-linux-musl
+
+      - name: Install musl tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       - name: Build
-        run: cargo build --release
+        run: cargo build --release --target x86_64-unknown-linux-musl
         working-directory: rust
 
       - name: Package artifact
         run: |
-          cd rust/target/release
+          cd rust/target/x86_64-unknown-linux-musl/release
           PKG_NAME="webdav_backup-${{ github.event.inputs.version }}-linux-amd64"
           zip -j "../../../${PKG_NAME}.zip" "webdav_backup"
 
