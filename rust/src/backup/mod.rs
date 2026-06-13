@@ -27,7 +27,7 @@ pub async fn run_project(
         sub_dir.clone()
     };
 
-    client.mkdir(&remote_dir).await.ok();
+    client.mkdir(&remote_dir).await?;
 
     let timestamp = Local::now().format("%Y%m%d_%H%M%S");
     let zip_name = format!("backup_{}.zip", timestamp);
