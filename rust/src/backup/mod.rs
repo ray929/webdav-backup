@@ -39,9 +39,11 @@ pub async fn run_project(
     if let Some(ref file_config) = project.file {
         file::backup(file_config, &temp_path, password.as_deref()).await?;
     } else if let Some(ref mysql_config) = project.mysql {
-        mysql::backup(mysql_config, &temp_path, password.as_deref()).await?;
+        let dump_path = config.resolve_mysqldump_path();
+        mysql::backup(mysql_config, dump_path, &temp_path, password.as_deref()).await?;
     } else if let Some(ref pgsql_config) = project.pgsql {
-        pgsql::backup(pgsql_config, &temp_path, password.as_deref()).await?;
+        let dump_path = config.resolve_pg_dump_path();
+        pgsql::backup(pgsql_config, dump_path, &temp_path, password.as_deref()).await?;
     }
 
     info!(zip = %zip_name, "uploading to webdav");

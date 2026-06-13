@@ -15,6 +15,8 @@ pub struct GlobalConfig {
     #[serde(default)]
     pub retain_count: Option<usize>,
     pub log_level: Option<String>,
+    pub mysqldump_path: Option<String>,
+    pub pg_dump_path: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -27,6 +29,7 @@ pub struct RemoteSource {
     pub zip_password: Option<String>,
     #[serde(default)]
     pub retain_count: Option<usize>,
+    pub proxy: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -57,7 +60,6 @@ pub struct MySqlConfig {
     pub database: String,
     pub tables: Option<String>,
     pub ssl_mode: Option<String>,
-    pub mysqldump_path: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -70,7 +72,6 @@ pub struct PgSqlConfig {
     pub database: String,
     pub tables: Option<String>,
     pub ssl_mode: Option<String>,
-    pub pg_dump_path: Option<String>,
 }
 
 fn default_mysql_port() -> u16 {
@@ -156,5 +157,13 @@ impl Config {
             }
         }
         String::new()
+    }
+
+    pub fn resolve_mysqldump_path(&self) -> &str {
+        self.global.mysqldump_path.as_deref().unwrap_or("mysqldump")
+    }
+
+    pub fn resolve_pg_dump_path(&self) -> &str {
+        self.global.pg_dump_path.as_deref().unwrap_or("pg_dump")
     }
 }

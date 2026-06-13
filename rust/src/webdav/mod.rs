@@ -16,10 +16,19 @@ pub struct WebDavClient {
 }
 
 impl WebDavClient {
-    pub fn new(base_url: String, username: String, password: String) -> Result<Self> {
-        let client = Client::builder()
-            .danger_accept_invalid_certs(false)
-            .build()?;
+    pub fn new(
+        base_url: String,
+        username: String,
+        password: String,
+        proxy: Option<&str>,
+    ) -> Result<Self> {
+        let mut builder = Client::builder().danger_accept_invalid_certs(false);
+        if let Some(proxy_url) = proxy {
+            let proxy = reqwest::Proxy::all(proxy_url)
+                .map_err(|e| anyhow!("invalid proxy '{}': {}", proxy_url, e))?;
+            builder = builder.proxy(proxy);
+        }
+        let client = builder.build()?;
         Ok(Self {
             client,
             base_url: base_url.trim_end_matches('/').to_string(),

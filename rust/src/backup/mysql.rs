@@ -8,8 +8,8 @@ use tokio::process::Command;
 use zip::write::ZipWriter;
 use zip::{AesMode, CompressionMethod};
 
-pub async fn backup(config: &MySqlConfig, zip_path: &Path, password: Option<&str>) -> Result<()> {
-    let mut cmd = Command::new(config.mysqldump_path.as_deref().unwrap_or("mysqldump"));
+pub async fn backup(config: &MySqlConfig, dump_path: &str, zip_path: &Path, password: Option<&str>) -> Result<()> {
+    let mut cmd = Command::new(dump_path);
     cmd.arg(format!("--host={}", config.host))
         .arg(format!("--port={}", config.port))
         .arg(format!("--user={}", config.username))

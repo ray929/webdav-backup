@@ -41,6 +41,8 @@ If no configuration file is specified explicitly, the program defaults to `confi
   - `zip_password` — Global ZIP password; leave unset for no encryption
   - `retain_count` — Global retention count; `0` means never delete old backups
   - `log_level` — Log level: `trace`, `debug`, `info`, `warn`, `error`
+  - `mysqldump_path` — Custom path to `mysqldump`; uses system `mysqldump` if omitted
+  - `pg_dump_path` — Custom path to `pg_dump`; uses system `pg_dump` if omitted
 
 - `source` — Array of remote WebDAV sources (multiple sources supported)
   - `name` — Source name, referenced by backups
@@ -48,14 +50,13 @@ If no configuration file is specified explicitly, the program defaults to `confi
   - `sub_dir` — Default remote subdirectory for this source
   - `zip_password` — Overrides the global ZIP password
   - `retain_count` — Overrides the global retention count
+  - `proxy` — HTTP/HTTPS proxy URL for this source
 
 - `backup` — Array of backup items (each item must be exactly one of: file / MySQL / PgSQL)
   - `source` — Which remote source to use
   - `sub_dir` — Remote subdirectory for this backup; if omitted, defaults to `"backup"`
   - `zip_password` / `retain_count` — Override source-level settings
   - `file` / `mysql` / `pgsql` — Type-specific settings
-    - `mysql.mysqldump_path` — Custom path to `mysqldump` executable; uses system `mysqldump` if omitted
-    - `pgsql.pg_dump_path` — Custom path to `pg_dump` executable; uses system `pg_dump` if omitted
 
 ## Development Commands
 

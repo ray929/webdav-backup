@@ -43,6 +43,7 @@ async fn main() -> Result<()> {
             source.url.clone(),
             source.username.clone(),
             source.password.clone(),
+            source.proxy.as_deref(),
         ) {
             Ok(c) => c,
             Err(e) => {
