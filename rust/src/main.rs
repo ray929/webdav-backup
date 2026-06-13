@@ -30,11 +30,11 @@ async fn main() -> Result<()> {
 
     let mut errors = Vec::new();
 
-    for project in &config.project {
+    for (idx, project) in config.backup.iter().enumerate() {
         let source = match config.source.iter().find(|s| s.name == project.source) {
             Some(s) => s,
             None => {
-                error!("source '{}' not found for project '{}'", project.source, project.name);
+                error!("source '{}' not found for backup[{}]", project.source, idx);
                 continue;
             }
         };
@@ -52,8 +52,8 @@ async fn main() -> Result<()> {
         };
 
         if let Err(e) = backup::run_project(&config, project, &client).await {
-            error!(project = %project.name, "backup failed: {}", e);
-            errors.push((project.name.clone(), e.to_string()));
+            error!("backup[{}] failed: {}", idx, e);
+            errors.push((idx, e.to_string()));
         }
     }
 
@@ -62,8 +62,8 @@ async fn main() -> Result<()> {
         Ok(())
     } else {
         error!("{} backup(s) failed", errors.len());
-        for (name, err) in &errors {
-            error!("  - {}: {}", name, err);
+        for (idx, err) in &errors {
+            error!("  - backup[{}]: {}", idx, err);
         }
         anyhow::bail!("some backups failed");
     }

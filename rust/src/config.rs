@@ -6,7 +6,7 @@ pub struct Config {
     #[serde(default)]
     pub global: GlobalConfig,
     pub source: Vec<RemoteSource>,
-    pub project: Vec<BackupProject>,
+    pub backup: Vec<BackupProject>,
 }
 
 #[derive(Debug, Deserialize, Clone, Default)]
@@ -31,7 +31,6 @@ pub struct RemoteSource {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct BackupProject {
-    pub name: String,
     pub source: String,
     pub sub_dir: Option<String>,
     pub zip_password: Option<String>,
@@ -89,11 +88,11 @@ impl Config {
     }
 
     pub fn validate(&self) -> anyhow::Result<()> {
-        for project in &self.project {
+        for (idx, project) in self.backup.iter().enumerate() {
             if !self.source.iter().any(|s| s.name == project.source) {
                 anyhow::bail!(
-                    "project '{}' references unknown source '{}'",
-                    project.name,
+                    "backup[{}] references unknown source '{}'",
+                    idx,
                     project.source
                 );
             }
@@ -107,8 +106,8 @@ impl Config {
             .count();
             if config_count != 1 {
                 anyhow::bail!(
-                    "project '{}' must have exactly one of: file, mysql, pgsql",
-                    project.name
+                    "backup[{}] must have exactly one of: file, mysql, pgsql",
+                    idx
                 );
             }
         }

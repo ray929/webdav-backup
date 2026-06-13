@@ -9,7 +9,6 @@ impl RetentionPolicy {
     pub async fn apply(
         client: &WebDavClient,
         remote_dir: &str,
-        project_name: &str,
         retain_count: usize,
     ) -> Result<()> {
         if retain_count == 0 {
@@ -18,14 +17,13 @@ impl RetentionPolicy {
         }
 
         let files = client.list(remote_dir).await?;
-        let prefix = format!("{}_", project_name);
         let suffix = ".zip";
 
         let mut backups: Vec<(String, NaiveDateTime)> = Vec::new();
 
         for file in files {
             let name = file.trim_start_matches('/');
-            if !name.starts_with(&prefix) || !name.ends_with(suffix) {
+            if !name.ends_with(suffix) {
                 continue;
             }
             if let Some(dt) = parse_timestamp(name) {

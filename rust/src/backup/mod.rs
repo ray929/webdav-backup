@@ -16,22 +16,21 @@ pub async fn run_project(
     project: &BackupProject,
     client: &WebDavClient,
 ) -> Result<()> {
-    info!(project = %project.name, "starting backup");
+    info!("starting backup");
 
     let password = config.resolve_password(project);
     let retain_count = config.resolve_retain_count(project);
     let sub_dir = config.resolve_sub_dir(project);
     let remote_dir = if sub_dir.is_empty() {
-        project.name.clone()
+        "backup".to_string()
     } else {
-        format!("{}/{}", sub_dir, project.name)
+        sub_dir.clone()
     };
 
-    client.mkdir(&sub_dir).await.ok();
     client.mkdir(&remote_dir).await.ok();
 
     let timestamp = Local::now().format("%Y%m%d_%H%M%S");
-    let zip_name = format!("{}_{}.zip", project.name, timestamp);
+    let zip_name = format!("backup_{}.zip", timestamp);
     let remote_path = format!("{}/{}", remote_dir, zip_name);
 
     let temp_zip = NamedTempFile::with_suffix(".zip")?;
@@ -49,9 +48,9 @@ pub async fn run_project(
     client.upload(temp_path.to_str().unwrap(), &remote_path).await?;
 
     if retain_count > 0 {
-        RetentionPolicy::apply(client, &remote_dir, &project.name, retain_count).await?;
+        RetentionPolicy::apply(client, &remote_dir, retain_count).await?;
     }
 
-    info!(project = %project.name, "backup completed");
+    info!("backup completed");
     Ok(())
 }

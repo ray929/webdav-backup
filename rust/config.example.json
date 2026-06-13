@@ -19,19 +19,19 @@
       "password": "cloud_pass"
     }
   ],
-  "project": [
+  "backup": [
     {
-      "name": "documents",
       "source": "nas",
       "retain_count": 3,
+      "sub_dir": "documents",
       "file": {
         "local_path": "D:\\Documents",
         "exclude": "node_modules target *.tmp Thumbs.db"
       }
     },
     {
-      "name": "blog_db",
       "source": "cloud",
+      "sub_dir": "blog_db",
       "mysql": {
         "host": "localhost",
         "port": 3306,
@@ -42,8 +42,8 @@
       }
     },
     {
-      "name": "analytics_db",
       "source": "nas",
+      "sub_dir": "analytics_db",
       "pgsql": {
         "host": "localhost",
         "port": 5432,

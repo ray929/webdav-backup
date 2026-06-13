@@ -12,9 +12,9 @@ A CLI tool for backing up local files and MySQL / PostgreSQL databases via WebDA
 - Full file backup with `.gitignore`-style exclude rules
 - MySQL database backup via `mysqldump`
 - PostgreSQL database backup via `pg_dump`
-- Multiple WebDAV remote sources, each project can choose which source to use
+- Multiple WebDAV remote sources, each backup can choose which source to use
 - ZIP compression with optional AES-256 password protection
-- Three-level configuration inheritance: Global → Source → Project
+- Three-level configuration inheritance: Global → Source → Backup
 - Remote retention policy (keep the latest N backups, 0 means keep all)
 - Beautiful console log output with log level support
 
@@ -43,16 +43,16 @@ If no configuration file is specified explicitly, the program defaults to `confi
   - `log_level` — Log level: `trace`, `debug`, `info`, `warn`, `error`
 
 - `source` — Array of remote WebDAV sources (multiple sources supported)
-  - `name` — Source name, referenced by projects
+  - `name` — Source name, referenced by backups
   - `url`, `username`, `password` — WebDAV connection credentials
   - `sub_dir` — Default remote subdirectory for this source
   - `zip_password` — Overrides the global ZIP password
   - `retain_count` — Overrides the global retention count
 
-- `project` — Array of backup projects (each project must be exactly one of: file / MySQL / PgSQL)
-  - `name` — Project name
+- `backup` — Array of backup items (each item must be exactly one of: file / MySQL / PgSQL)
   - `source` — Which remote source to use
-  - `sub_dir` / `zip_password` / `retain_count` — Override source-level settings
+  - `sub_dir` — Remote subdirectory for this backup; if omitted, defaults to `"backup"`
+  - `zip_password` / `retain_count` — Override source-level settings
   - `file` / `mysql` / `pgsql` — Type-specific settings
 
 ## Development Commands
