@@ -1,82 +1,90 @@
 # WebDAV Backup
 
-通过 WebDAV 备份本地文件和 MySQL / PostgreSQL 数据库的 CLI 工具。
+A CLI tool for backing up local files and MySQL / PostgreSQL databases via WebDAV.
 
-## 目录结构
+## Directory Structure
 
-- `rust/` — Rust 实现
-- （预留）其他语言实现
+- `rust/` — Rust implementation
+- (Reserved) Implementations in other languages
 
-## 功能
+## Features
 
-- 文件全量备份（支持类 `.gitignore` 排除规则）
-- MySQL 数据库备份（`mysqldump`）
-- PostgreSQL 数据库备份（`pg_dump`）
-- 多 WebDAV 远程源配置，每个项目可指定使用哪个源
-- ZIP 压缩 + AES-256 密码保护
-- 三级继承配置：全局 → 远程源 → 备份项目
-- 远程备份保留策略（保留最新 N 个，0 表示不删除）
-- 美观的控制台日志输出
+- Full file backup with `.gitignore`-style exclude rules
+- MySQL database backup via `mysqldump`
+- PostgreSQL database backup via `pg_dump`
+- Multiple WebDAV remote sources, each project can choose which source to use
+- ZIP compression with optional AES-256 password protection
+- Three-level configuration inheritance: Global → Source → Project
+- Remote retention policy (keep the latest N backups, 0 means keep all)
+- Beautiful console log output with log level support
 
-## 环境要求
+## Requirements
 
 - Rust 1.75+
-- `mysqldump`（MySQL 备份时需要）
-- `pg_dump`（PostgreSQL 备份时需要）
+- `mysqldump` (required for MySQL backups)
+- `pg_dump` (required for PostgreSQL backups)
 
-## 配置
+## Configuration
 
-复制示例配置文件并编辑：
+Copy the example configuration file and edit it:
 
 ```bash
 cd rust
 cp config.example.toml config.toml
 ```
 
-配置说明：
+If no configuration file is specified explicitly, the program defaults to `config.toml` in the same directory as the executable.
 
-- `[global]` — 全局默认设置
-  - `zip_password` — 全局 ZIP 解压密码，不设置则不加密
-  - `retain_count` — 全局保留数量，`0` 表示不删除旧备份
-  - `log_level` — 日志级别：`trace`, `debug`, `info`, `warn`, `error`
+### Configuration Items
 
-- `[[source]]` — 远程 WebDAV 源（可配置多个）
-  - `name` — 源名称，供项目引用
-  - `url`, `username`, `password` — WebDAV 连接信息
-  - `sub_dir` — 该源下的默认远程子目录
-  - `zip_password` — 覆盖全局密码
-  - `retain_count` — 覆盖全局保留数量
+- `[global]` — Global default settings
+  - `zip_password` — Global ZIP password; leave unset for no encryption
+  - `retain_count` — Global retention count; `0` means never delete old backups
+  - `log_level` — Log level: `trace`, `debug`, `info`, `warn`, `error`
 
-- `[[project]]` — 备份项目（每个项目只能是文件 / MySQL / PgSQL 中的一种）
-  - `name` — 项目名称
-  - `source` — 引用哪个远程源
-  - `sub_dir` / `zip_password` / `retain_count` — 覆盖源级配置
-  - `[project.file]` / `[project.mysql]` / `[project.pgsql]` — 类型专属配置
+- `[[source]]` — Remote WebDAV sources (multiple sources supported)
+  - `name` — Source name, referenced by projects
+  - `url`, `username`, `password` — WebDAV connection credentials
+  - `sub_dir` — Default remote subdirectory for this source
+  - `zip_password` — Overrides the global ZIP password
+  - `retain_count` — Overrides the global retention count
 
-## 调试命令
+- `[[project]]` — Backup projects (each project must be exactly one of: file / MySQL / PgSQL)
+  - `name` — Project name
+  - `source` — Which remote source to use
+  - `sub_dir` / `zip_password` / `retain_count` — Override source-level settings
+  - `[project.file]` / `[project.mysql]` / `[project.pgsql]` — Type-specific settings
+
+## Development Commands
 
 ```bash
 cd rust
-cargo run -- --config config.toml
+cargo run
 ```
 
-## 构建
+Or specify a custom configuration file:
+
+```bash
+cargo run -- --config /path/to/config.toml
+```
+
+## Build
 
 ```bash
 cd rust
 cargo build --release
 ```
 
-Windows 下若需静态编译（不依赖外部 MSVC 运行时），可在 PowerShell 中执行：
+For static compilation on Windows (no external MSVC runtime dependency), run in PowerShell:
 
 ```powershell
 $env:RUSTFLAGS='-C target-feature=+crt-static'
 cargo build --release
 ```
 
-## 定时任务
+## Scheduling
 
-手动测试通过后，可加入系统定时任务：
+After manual testing, you can add the tool to your system scheduler:
 
-- **Linux**: `crontab -e` 添加一行
-- **Windows**: 使用"任务计划程序"创建基本任务
+- **Linux**: Add a line to `crontab -e`
+- **Windows**: Use Task Scheduler to create a basic task
