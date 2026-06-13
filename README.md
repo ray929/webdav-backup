@@ -54,6 +54,8 @@ If no configuration file is specified explicitly, the program defaults to `confi
   - `sub_dir` — Remote subdirectory for this backup; if omitted, defaults to `"backup"`
   - `zip_password` / `retain_count` — Override source-level settings
   - `file` / `mysql` / `pgsql` — Type-specific settings
+    - `mysql.mysqldump_path` — Custom path to `mysqldump` executable; uses system `mysqldump` if omitted
+    - `pgsql.pg_dump_path` — Custom path to `pg_dump` executable; uses system `pg_dump` if omitted
 
 ## Development Commands
 

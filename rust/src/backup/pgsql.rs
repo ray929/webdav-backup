@@ -9,7 +9,7 @@ use zip::write::ZipWriter;
 use zip::{AesMode, CompressionMethod};
 
 pub async fn backup(config: &PgSqlConfig, zip_path: &Path, password: Option<&str>) -> Result<()> {
-    let mut cmd = Command::new("pg_dump");
+    let mut cmd = Command::new(config.pg_dump_path.as_deref().unwrap_or("pg_dump"));
     cmd.arg(format!("--host={}", config.host))
         .arg(format!("--port={}", config.port))
         .arg(format!("--username={}", config.username))

@@ -57,6 +57,7 @@ pub struct MySqlConfig {
     pub database: String,
     pub tables: Option<String>,
     pub ssl_mode: Option<String>,
+    pub mysqldump_path: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -69,6 +70,7 @@ pub struct PgSqlConfig {
     pub database: String,
     pub tables: Option<String>,
     pub ssl_mode: Option<String>,
+    pub pg_dump_path: Option<String>,
 }
 
 fn default_mysql_port() -> u16 {
