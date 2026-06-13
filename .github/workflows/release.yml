@@ -49,12 +49,8 @@ jobs:
         shell: bash
         run: |
           cd rust/target/${{ matrix.target }}/release
-          PKG_NAME="webdav_backup-${{ github.ref_name }}-${{ matrix.target }}${{ matrix.ext }}"
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            7z a "../../../${PKG_NAME}.zip" "webdav_backup${{ matrix.ext }}"
-          else
-            zip -j "../../../${PKG_NAME}.zip" "webdav_backup${{ matrix.ext }}"
-          fi
+          PKG_NAME="webdav_backup-${{ github.ref_name }}-${{ matrix.target }}"
+          zip -j "../../../${PKG_NAME}.zip" "webdav_backup${{ matrix.ext }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
