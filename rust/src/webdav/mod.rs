@@ -6,6 +6,7 @@ use reqwest::{Client, Method, StatusCode};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::{debug, warn};
+use url::Url;
 
 pub struct WebDavClient {
     client: Client,
@@ -215,30 +216,46 @@ impl WebDavClient {
 
         let xml = resp.text().await?;
         let hrefs = parse_propfind_response(&xml);
-        let prefix = format!("{}/", path.trim_end_matches('/'));
+
+        // PROPFIND hrefs may be absolute server paths (e.g. /dav/Koofr/us1/files/...)
+        // or relative to the collection. Build the collection's absolute path from
+        // the request URL so we can always extract just the entry name.
+        let request_url = format!("{}/{}", self.base_url, path.trim_start_matches('/'));
+        let request_path = Url::parse(&request_url)?.path().to_string();
 
         let mut result = Vec::new();
         for href in hrefs {
-            let normalized = href.trim_start_matches('/');
-            if normalized == path.trim_start_matches('/')
-                || normalized == path.trim_start_matches('/').trim_end_matches('/')
-            {
-                continue;
-            }
-            let name = if normalized.starts_with(prefix.trim_start_matches('/')) {
-                normalized
-                    .strip_prefix(prefix.trim_start_matches('/'))
-                    .unwrap_or(normalized)
-            } else {
-                normalized
-            };
-            if !name.is_empty() {
-                result.push(name.to_string());
+            if let Some(name) = entry_name_from_href(&href, &request_path) {
+                if !name.is_empty() {
+                    result.push(name);
+                }
             }
         }
 
         Ok(result)
     }
+}
+
+fn entry_name_from_href(href: &str, base_path: &str) -> Option<String> {
+    let base_path = base_path.trim_end_matches('/');
+
+    // Convert href to an absolute path.
+    let href_path = if href.find("://").is_some() {
+        Url::parse(href).ok()?.path().to_string()
+    } else if href.starts_with('/') {
+        href.to_string()
+    } else {
+        format!("{}/{}", base_path, href)
+    };
+    let href_path = href_path.trim_end_matches('/');
+
+    // Skip the collection itself.
+    if href_path == base_path {
+        return None;
+    }
+
+    let prefix = format!("{}/", base_path);
+    href_path.strip_prefix(&prefix).map(|s| s.to_string())
 }
 
 fn parse_propfind_response(xml: &str) -> Vec<String> {
