@@ -51,10 +51,12 @@ pub async fn backup(
         let backup_data = fs::read(&temp_path)?;
         let _ = fs::remove_file(&temp_path);
 
+        // 将完整路径编码到文件名中，避免同名文件冲突
+        // 例如: /data/www/app.db -> _data_www_app.db
+        //       D:\data\app.db   -> D__data_app.db
         let filename = db_path
-            .file_name()
-            .map(|n| n.to_string_lossy().to_string())
-            .unwrap_or_else(|| "backup.db".to_string());
+            .to_string_lossy()
+            .replace(['/', '\\', ':'], "_");
 
         if let Some(pwd) = password {
             let options = zip::write::FileOptions::<'_, ()>::default()
