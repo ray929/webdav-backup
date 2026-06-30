@@ -27,12 +27,19 @@ pub async fn backup(config: &FileConfig, zip_path: &Path, password: Option<&str>
             }
 
             let relative = path.strip_prefix(local_path)?;
-            let relative_str = relative.to_string_lossy().replace('\\', "/");
+            let rel_path = relative.to_string_lossy().replace('\\', "/");
 
-            if glob_set.is_match(&relative_str) {
-                tracing::debug!(file = %relative_str, "excluded");
+            if glob_set.is_match(&rel_path) {
+                tracing::debug!(file = %rel_path, "excluded");
                 continue;
             }
+
+            // 将 local_path 编码为前缀，避免多目录下同名文件冲突
+            // 例如: D:\data\config.ini -> D__data/config.ini
+            let prefix = local_path
+                .to_string_lossy()
+                .replace(['/', '\\', ':'], "_");
+            let zip_name = format!("{}/{}", prefix, rel_path);
 
             let mut file = File::open(path)?;
             let mut contents = Vec::new();
@@ -42,11 +49,11 @@ pub async fn backup(config: &FileConfig, zip_path: &Path, password: Option<&str>
                 let options = zip::write::FileOptions::<'_, ()>::default()
                     .compression_method(CompressionMethod::Deflated)
                     .with_aes_encryption(AesMode::Aes256, password);
-                zip.start_file(relative_str, options)?;
+                zip.start_file(&zip_name, options)?;
             } else {
                 let options = zip::write::FileOptions::<'_, ()>::default()
                     .compression_method(CompressionMethod::Deflated);
-                zip.start_file(relative_str, options)?;
+                zip.start_file(&zip_name, options)?;
             }
             zip.write_all(&contents)?;
         }
